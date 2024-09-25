@@ -4,7 +4,6 @@ from forces.AtmosphericDrag import AtmosphericDrag
 from forces.Gravity import Gravity
 from NewtonSecondLaw import NewtonSecondLaw
 from propagator.Integrator import Integrator
-from solvers.BoundaryValueSolver import BoundaryValueSolver
 from outputs.Writer import Writer
 import matplotlib.pyplot as plt
 from constants import *
@@ -27,7 +26,6 @@ print("Gravitational force:", gravity_force, "N")
 # ----------- Solar Radiation Pressure (SRP)--------------------
 SRP_calculator = SolarRadiationPressure(solar_pressure, reflectivity_coefficient, SRP_area, spacecraft_mass, initial_position)
 pressure_force = SRP_calculator.calculate_pressure()
-print("Solar Radiation Pressure Force Vector:", pressure_force, "N")
 
 # ----------- Drag Force --------------------
 drag_calculator = AtmosphericDrag(density, drag_coefficient, drag_area, spacecraft_mass)
@@ -50,14 +48,10 @@ def equations_of_motion(t, y):
     position = y[:3]
     velocity = y[3:]
 
-    gravity_force = gravity_calculator.calculate_force(spacecraft_mass, m2, position)
-    pressure_force = SRP_calculator.calculate_pressure()
-    drag_force = drag_calculator.calculate_drag_force(velocity)
 
     total_force = gravity_force + pressure_force + drag_force
     acceleration = total_force / spacecraft_mass
 
-    return np.hstack((velocity, acceleration))
 
 # ----------- Hohmann Transfer Specifics --------------------
 initial_orbit_radius = np.linalg.norm(initial_position)
@@ -76,14 +70,11 @@ print("Delta-v for first burn:", delta_v1, "m/s")
 # Apply the first burn
 velocity_after_burn1 = initial_velocity + np.array([delta_v1, 0, 0])
 
-# Propagate the orbit until apogee (half the orbital period of the transfer orbit)
-a_transfer = (initial_orbit_radius + final_orbit_radius) / 2
-orbital_period_transfer = 2 * np.pi * np.sqrt(a_transfer**3 / mu)
-time_to_apogee = orbital_period_transfer / 2
+            return t_values, y_values
+        except RuntimeError as e:
+            print("Integration failed:", str(e))
+            return None
 
-# Integrate the trajectory from initial position to apogee
-integrator = Integrator(method='DOP853', initial_step_size=initial_step_size, accuracy=accuracy,min_step_size = min_step_size, max_step_size=max_step_size, max_step_attempts=max_step_attempts, stop_if_accuracy_violated=stop_if_accuracy_violated)
-y0 = np.hstack((initial_position, velocity_after_burn1))
 
 positions = []
 velocities = []
