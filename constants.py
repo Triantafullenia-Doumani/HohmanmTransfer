@@ -28,7 +28,6 @@ m2 = 5.9722* (10 ^ 24)  # mass of Earth (kg)
 velocity = np.array([0, 7.35, 1])  # The flow velocity relative to the object (m/s)
 
 # Integrator Constants
-integrator_type = 'RK4'
 initial_step_size = 60
 accuracy = 1e-6 # to meiwsa gia dokimh, sto gmat einai 9.999999999999999e-12
 min_step_size = 0.001
